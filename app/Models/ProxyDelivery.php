@@ -12,9 +12,13 @@ class ProxyDelivery extends Model
     use HasFactory;
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_READY = 'ready';
+
     public const STATUS_DELIVERED = 'delivered';
+
     public const STATUS_EXPIRED = 'expired';
+
     public const STATUS_FAILED = 'failed';
 
     protected $fillable = [

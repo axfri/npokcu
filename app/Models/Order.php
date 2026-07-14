@@ -12,11 +12,17 @@ class Order extends Model
     use HasFactory;
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_AWAITING_PAYMENT = 'awaiting_payment';
+
     public const STATUS_PAID = 'paid';
+
     public const STATUS_PROCESSING = 'processing';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_FAILED = 'failed';
 
     protected $fillable = [
