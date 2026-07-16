@@ -35,8 +35,17 @@
             </nav>
 
             <div class="header-actions">
-                <a class="button button-ghost button-small" href="{{ route('login') }}">Войти</a>
-                <a class="button button-primary button-small" href="{{ route('register') }}">Регистрация</a>
+                @guest
+                    <a class="button button-ghost button-small" href="{{ route('login') }}">Войти</a>
+                    <a class="button button-primary button-small" href="{{ route('register') }}">Регистрация</a>
+                @else
+                    <a class="button button-ghost button-small" href="{{ route('account') }}">Личный кабинет</a>
+                    <bdi class="header-email" title="{{ auth()->user()->email }}">{{ auth()->user()->email }}</bdi>
+                    <form class="logout-form" method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="button button-secondary button-small" type="submit">Выйти</button>
+                    </form>
+                @endguest
             </div>
 
             <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
@@ -53,15 +62,33 @@
                 <a href="{{ route('contacts') }}" @class(['is-active' => request()->routeIs('contacts')])>Контакты</a>
                 <a href="{{ route('terms') }}" @class(['is-active' => request()->routeIs('terms')])>Правила</a>
                 <a href="{{ route('privacy') }}" @class(['is-active' => request()->routeIs('privacy')])>Конфиденциальность</a>
-                <div class="mobile-menu-actions">
-                    <a class="button button-ghost" href="{{ route('login') }}">Войти</a>
-                    <a class="button button-primary" href="{{ route('register') }}">Регистрация</a>
-                </div>
+                @guest
+                    <div class="mobile-menu-actions">
+                        <a class="button button-ghost" href="{{ route('login') }}">Войти</a>
+                        <a class="button button-primary" href="{{ route('register') }}">Регистрация</a>
+                    </div>
+                @else
+                    <div class="mobile-account">
+                        <span>Вы вошли как</span>
+                        <bdi class="header-email" title="{{ auth()->user()->email }}">{{ auth()->user()->email }}</bdi>
+                        <a class="button button-primary" href="{{ route('account') }}">Личный кабинет</a>
+                        <form class="logout-form" method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="button button-secondary" type="submit">Выйти</button>
+                        </form>
+                    </div>
+                @endguest
             </div>
         </nav>
     </header>
 
     <main id="main-content">
+        @if (session('status'))
+            <div class="container alert-wrap">
+                <div class="alert alert-success" role="status">{{ session('status') }}</div>
+            </div>
+        @endif
+
         @if (session('success'))
             <div class="container alert-wrap">
                 <div class="alert alert-success" role="status">{{ session('success') }}</div>
@@ -74,7 +101,7 @@
             </div>
         @endif
 
-        @if ($errors->any())
+        @if ($errors->any() && ! $__env->hasSection('suppressGlobalErrors'))
             <div class="container alert-wrap">
                 <div class="alert alert-error" role="alert">
                     <strong>Проверьте введенные данные:</strong>
