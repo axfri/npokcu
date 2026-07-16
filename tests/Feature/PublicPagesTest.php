@@ -30,8 +30,8 @@ class PublicPagesTest extends TestCase
 
     public function test_future_sections_return_safe_placeholder_pages(): void
     {
-        $this->get('/catalog')->assertOk()->assertSee('Каталог готовится');
         $this->get('/login')->assertOk()->assertSee('Вход пока недоступен');
         $this->get('/register')->assertOk()->assertSee('Регистрация пока недоступна');
+        $this->get('/purchase')->assertOk()->assertSee('Покупка пока недоступна');
     }
 }
