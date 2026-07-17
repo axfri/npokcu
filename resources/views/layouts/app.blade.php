@@ -28,7 +28,7 @@
 
             <nav class="desktop-nav" aria-label="Основная навигация">
                 <a href="{{ route('home') }}" @class(['is-active' => request()->routeIs('home')])>Главная</a>
-                <a href="{{ route('catalog') }}" @class(['is-active' => request()->routeIs('catalog*', 'products.*')])>Каталог</a>
+                <a href="{{ route('catalog') }}" @class(['is-active' => request()->routeIs('catalog*', 'products.*', 'orders.*')])>Каталог</a>
                 <a href="{{ route('instructions') }}" @class(['is-active' => request()->routeIs('instructions')])>Инструкция</a>
                 <a href="{{ route('contacts') }}" @class(['is-active' => request()->routeIs('contacts')])>Контакты</a>
                 <a href="{{ route('terms') }}" @class(['is-active' => request()->routeIs('terms')])>Правила</a>
@@ -57,7 +57,7 @@
         <nav class="mobile-menu" id="mobile-menu" aria-label="Мобильная навигация" data-mobile-menu hidden>
             <div class="container mobile-menu-inner">
                 <a href="{{ route('home') }}" @class(['is-active' => request()->routeIs('home')])>Главная</a>
-                <a href="{{ route('catalog') }}" @class(['is-active' => request()->routeIs('catalog*', 'products.*')])>Каталог</a>
+                <a href="{{ route('catalog') }}" @class(['is-active' => request()->routeIs('catalog*', 'products.*', 'orders.*')])>Каталог</a>
                 <a href="{{ route('instructions') }}" @class(['is-active' => request()->routeIs('instructions')])>Инструкция</a>
                 <a href="{{ route('contacts') }}" @class(['is-active' => request()->routeIs('contacts')])>Контакты</a>
                 <a href="{{ route('terms') }}" @class(['is-active' => request()->routeIs('terms')])>Правила</a>
@@ -124,7 +124,7 @@
                     <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
                     <span class="brand-copy"><strong>ПРОКСИ.НЕТ</strong></span>
                 </a>
-                <p>Публичная версия сервиса находится в разработке. Каталог уже доступен, покупка будет подключена позднее.</p>
+                <p>Каталог и тестовое оформление заказа уже доступны. Выдача файлов будет подключена позднее.</p>
             </div>
             <div>
                 <h2>Навигация</h2>

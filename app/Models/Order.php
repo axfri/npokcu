@@ -27,6 +27,7 @@ class Order extends Model
 
     protected $fillable = [
         'order_number',
+        'checkout_token_hash',
         'user_id',
         'customer_email',
         'subtotal',
@@ -37,6 +38,10 @@ class Order extends Model
         'order_status',
         'paid_at',
         'completed_at',
+    ];
+
+    protected $hidden = [
+        'checkout_token_hash',
     ];
 
     protected function casts(): array
@@ -62,5 +67,10 @@ class Order extends Model
     public function paymentTransactions(): HasMany
     {
         return $this->hasMany(PaymentTransaction::class);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'order_number';
     }
 }

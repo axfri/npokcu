@@ -77,8 +77,8 @@
                             <dd>{{ $product->default_duration_days }} дней</dd>
                         </div>
                     </dl>
-                    <a class="button button-primary button-wide" href="{{ route('purchase.placeholder') }}">Купить</a>
-                    <p>Оформление заказа будет подключено на следующем этапе.</p>
+                    <a class="button button-primary button-wide" href="{{ route('products.checkout', $product) }}">Купить</a>
+                    <p>На следующем шаге можно выбрать срок и выполнить тестовую оплату.</p>
                 </aside>
             </div>
         </div>

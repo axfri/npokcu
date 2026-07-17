@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderSuccessController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +23,16 @@ Route::view('/privacy', 'pages.privacy')->name('privacy');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog');
 Route::get('/catalog/{category:slug}', [CatalogController::class, 'show'])->name('catalog.category');
 Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+
+Route::middleware('active')->group(function (): void {
+    Route::get('/products/{product:slug}/checkout', [CheckoutController::class, 'create'])
+        ->name('products.checkout');
+    Route::post('/products/{product:slug}/checkout', [CheckoutController::class, 'store'])
+        ->middleware('throttle:30,1')
+        ->name('products.checkout.store');
+    Route::get('/orders/{order:order_number}/success', OrderSuccessController::class)
+        ->name('orders.success');
+});
 
 Route::view('/purchase', 'pages.coming-soon', [
     'pageTitle' => 'Покупка пока недоступна',

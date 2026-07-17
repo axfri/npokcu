@@ -23,7 +23,7 @@ class DatabaseStructureTest extends TestCase
             'category_id', 'base_price', 'default_duration_days',
         ]));
         $this->assertTrue(Schema::hasColumns('orders', [
-            'order_number', 'customer_email', 'payment_status', 'order_status',
+            'order_number', 'checkout_token_hash', 'customer_email', 'payment_status', 'order_status',
         ]));
         $this->assertTrue(Schema::hasColumns('payment_transactions', [
             'request_payload', 'response_payload', 'paid_at',
