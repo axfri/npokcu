@@ -290,6 +290,11 @@ class CheckoutTest extends TestCase
         $token = $this->checkoutToken($product);
         config(['payments.test_mode' => false]);
 
+        $this->get(route('products.checkout', $product))
+            ->assertOk()
+            ->assertSee('Недоступно')
+            ->assertSee('disabled', false);
+
         $this->post(
             route('products.checkout.store', $product),
             $this->checkoutPayload($option, $token)

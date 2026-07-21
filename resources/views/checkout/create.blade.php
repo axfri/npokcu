@@ -8,6 +8,7 @@
     $requestedOptionId = (int) old('duration_option_id', $product->durationOptions->first()?->getKey());
     $selectedOption = $product->durationOptions->firstWhere('id', $requestedOptionId)
         ?? $product->durationOptions->first();
+    $testPaymentEnabled = config('payments.test_mode');
 @endphp
 
 @section('content')
@@ -145,13 +146,13 @@
                         </div>
 
                         <label class="checkout-payment-option">
-                            <input type="radio" name="payment_method" value="test" checked required>
+                            <input type="radio" name="payment_method" value="test" @checked($testPaymentEnabled) @disabled(! $testPaymentEnabled) required>
                             <span class="checkout-payment-option__icon" aria-hidden="true">T</span>
                             <span>
                                 <strong>Тестовая оплата</strong>
                                 <small>Без списания денежных средств</small>
                             </span>
-                            <span class="status-badge status-badge--success">Доступно</span>
+                            <span class="status-badge status-badge--{{ $testPaymentEnabled ? 'success' : 'warning' }}">{{ $testPaymentEnabled ? 'Доступно' : 'Недоступно' }}</span>
                         </label>
                         @error('payment_method')
                             <p class="form-error" role="alert">{{ $message }}</p>
@@ -199,7 +200,7 @@
                         class="button button-primary button-wide"
                         type="submit"
                         data-checkout-submit
-                        @disabled($product->durationOptions->isEmpty())
+                        @disabled($product->durationOptions->isEmpty() || ! $testPaymentEnabled)
                     >
                         Оформить заказ
                     </button>
