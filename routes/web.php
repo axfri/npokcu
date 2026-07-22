@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -24,7 +25,7 @@ Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog');
 Route::get('/catalog/{category:slug}', [CatalogController::class, 'show'])->name('catalog.category');
 Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 
-Route::middleware('active')->group(function (): void {
+Route::middleware(['active', 'password.changed', 'auth.session'])->group(function (): void {
     Route::get('/products/{product:slug}/checkout', [CheckoutController::class, 'create'])
         ->name('products.checkout');
     Route::post('/products/{product:slug}/checkout', [CheckoutController::class, 'store'])
@@ -61,7 +62,13 @@ Route::middleware('guest')->group(function (): void {
         ->name('password.update');
 });
 
-Route::middleware(['auth', 'active'])->group(function (): void {
+Route::middleware(['auth', 'active', 'password.changed', 'auth.session'])->group(function (): void {
+    Route::get('/account/change-password', [ChangePasswordController::class, 'edit'])
+        ->name('account.password.edit');
+    Route::put('/account/change-password', [ChangePasswordController::class, 'update'])
+        ->middleware('throttle:password-update')
+        ->name('account.password.update');
+
     Route::get('/account', AccountController::class)->name('account');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 

@@ -37,6 +37,7 @@ class PasswordResetTest extends TestCase
         Notification::fake();
         $user = User::factory()->create([
             'password' => Hash::make('old-password'),
+            'must_change_password' => true,
         ]);
 
         $this->post(route('password.email'), ['email' => $user->email]);
@@ -62,6 +63,7 @@ class PasswordResetTest extends TestCase
         $user->refresh();
         $this->assertTrue(Hash::check('new-secure-password', $user->password));
         $this->assertFalse(Hash::check('old-password', $user->password));
+        $this->assertFalse($user->must_change_password);
     }
 
     public function test_invalid_password_reset_token_is_rejected(): void

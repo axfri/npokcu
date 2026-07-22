@@ -39,7 +39,9 @@
                     <a class="button button-ghost button-small" href="{{ route('login') }}">Войти</a>
                     <a class="button button-primary button-small" href="{{ route('register') }}">Регистрация</a>
                 @else
-                    <a class="button button-ghost button-small" href="{{ route('account') }}">Личный кабинет</a>
+                    <a class="button button-ghost button-small" href="{{ auth()->user()->must_change_password ? route('account.password.edit') : route('account') }}">
+                        {{ auth()->user()->must_change_password ? 'Сменить пароль' : 'Личный кабинет' }}
+                    </a>
                     <bdi class="header-email" title="{{ auth()->user()->email }}">{{ auth()->user()->email }}</bdi>
                     <form class="logout-form" method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -71,7 +73,9 @@
                     <div class="mobile-account">
                         <span>Вы вошли как</span>
                         <bdi class="header-email" title="{{ auth()->user()->email }}">{{ auth()->user()->email }}</bdi>
-                        <a class="button button-primary" href="{{ route('account') }}">Личный кабинет</a>
+                        <a class="button button-primary" href="{{ auth()->user()->must_change_password ? route('account.password.edit') : route('account') }}">
+                            {{ auth()->user()->must_change_password ? 'Сменить пароль' : 'Личный кабинет' }}
+                        </a>
                         <form class="logout-form" method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button class="button button-secondary" type="submit">Выйти</button>
