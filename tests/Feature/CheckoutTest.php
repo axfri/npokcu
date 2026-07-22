@@ -11,6 +11,7 @@ use App\Models\ProductDurationOption;
 use App\Models\User;
 use App\Services\Payments\TestPaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use RuntimeException;
 use Tests\TestCase;
@@ -24,6 +25,7 @@ class CheckoutTest extends TestCase
         parent::setUp();
 
         config(['payments.test_mode' => true]);
+        Mail::fake();
     }
 
     public function test_checkout_form_shows_active_options_and_prefills_authenticated_email(): void
@@ -79,7 +81,9 @@ class CheckoutTest extends TestCase
         );
 
         $order = Order::query()->sole();
-        $this->assertNull($order->user_id);
+        $this->assertNotNull($order->user_id);
+        $this->assertSame(Order::GUEST_ACCOUNT_CREATED, $order->guest_account_status);
+        $this->assertSame('guest@example.test', $order->user->email);
         $this->assertSame('guest@example.test', $order->customer_email);
 
         $successUrl = $response->headers->get('Location');
@@ -125,7 +129,8 @@ class CheckoutTest extends TestCase
         $this->assertSame('1499.50', $item->unit_price);
         $this->assertSame('1499.50', $item->total_price);
         $this->assertSame(60, $item->duration_days);
-        $this->assertNull($order->user_id);
+        $this->assertNotSame(999, $order->user_id);
+        $this->assertSame('guest@example.test', $order->user->email);
         $this->assertSame(Order::STATUS_PROCESSING, $order->order_status);
     }
 
@@ -203,6 +208,7 @@ class CheckoutTest extends TestCase
         $this->assertDatabaseCount('orders', 0);
         $this->assertDatabaseCount('order_items', 0);
         $this->assertDatabaseCount('payment_transactions', 0);
+        $this->assertDatabaseCount('users', 0);
     }
 
     public function test_test_payment_marks_order_and_payment_paid_and_sets_duration_dates(): void
@@ -353,6 +359,10 @@ class CheckoutTest extends TestCase
         $this->get($expiredUrl)->assertNotFound();
         $this->get($signedUrl)->assertOk();
         $this->get($signedUrl)->assertOk();
+
+        $this->actingAs(User::factory()->create())
+            ->get($signedUrl)
+            ->assertNotFound();
 
         $this->assertDatabaseCount('orders', 1);
         $this->assertDatabaseCount('order_items', 1);

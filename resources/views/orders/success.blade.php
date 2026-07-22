@@ -52,8 +52,15 @@
                 @endif
 
                 <div class="order-success-notice">
-                    <strong>Что дальше?</strong>
-                    <p>Выдача файла будет добавлена на следующем этапе. Сейчас создавать или отправлять файл не требуется.</p>
+                    <strong>Аккаунт и заказ</strong>
+                    @if ($order->guest_account_status === \App\Models\Order::GUEST_ACCOUNT_CREATED)
+                        <p>Аккаунт создан автоматически. Данные для входа отправлены на указанную почту.</p>
+                    @elseif ($order->guest_account_status === \App\Models\Order::GUEST_ACCOUNT_EXISTING)
+                        <p>Заказ закреплён за аккаунтом с указанной почтой.</p>
+                    @else
+                        <p>Заказ закреплён за вашим аккаунтом.</p>
+                    @endif
+                    <p>Создание и выдача файлов будут добавлены на отдельном этапе.</p>
                 </div>
 
                 <div class="order-success-actions">

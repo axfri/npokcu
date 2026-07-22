@@ -25,10 +25,17 @@ class Order extends Model
 
     public const STATUS_FAILED = 'failed';
 
+    public const GUEST_ACCOUNT_PENDING = 'pending';
+
+    public const GUEST_ACCOUNT_CREATED = 'created';
+
+    public const GUEST_ACCOUNT_EXISTING = 'existing';
+
     protected $fillable = [
         'order_number',
         'checkout_token_hash',
         'user_id',
+        'guest_account_status',
         'customer_email',
         'subtotal',
         'total',

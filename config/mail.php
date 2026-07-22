@@ -16,6 +16,8 @@ return [
 
     'default' => env('MAIL_MAILER', 'log'),
 
+    'credentials_mailer' => env('MAIL_CREDENTIALS_MAILER', 'smtp'),
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations

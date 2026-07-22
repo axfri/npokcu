@@ -35,6 +35,7 @@ class CheckoutController extends Controller
         CheckoutService $checkoutService,
     ): RedirectResponse {
         $validated = $request->validated();
+        $guestCheckout = $request->user() === null;
         $order = $checkoutService->checkout(
             $product,
             (int) $validated['duration_option_id'],
@@ -43,7 +44,7 @@ class CheckoutController extends Controller
             $request->checkoutTokenHash(),
         );
 
-        return redirect()->to($this->successUrl($order));
+        return redirect()->to($this->successUrl($order, $guestCheckout));
     }
 
     private function issueCheckoutToken(Request $request, Product $product): string
@@ -66,9 +67,9 @@ class CheckoutController extends Controller
         return $checkoutToken;
     }
 
-    private function successUrl(Order $order): string
+    private function successUrl(Order $order, bool $guestCheckout): string
     {
-        if ($order->user_id !== null) {
+        if (! $guestCheckout) {
             return route('orders.success', $order);
         }
 

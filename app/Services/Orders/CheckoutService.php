@@ -3,9 +3,11 @@
 namespace App\Services\Orders;
 
 use App\Models\Order;
+use App\Models\PaymentTransaction;
 use App\Models\Product;
 use App\Models\ProductDurationOption;
 use App\Models\User;
+use App\Services\Accounts\GuestAccountService;
 use App\Services\Payments\TestPaymentService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -16,6 +18,7 @@ class CheckoutService
 {
     public function __construct(
         private readonly TestPaymentService $paymentService,
+        private readonly GuestAccountService $guestAccountService,
     ) {}
 
     public function checkout(
@@ -30,6 +33,13 @@ class CheckoutService
             ->first();
 
         if ($existingOrder) {
+            if (
+                $existingOrder->guest_account_status !== null
+                && $existingOrder->payment_status === PaymentTransaction::STATUS_PAID
+            ) {
+                $existingOrder = $this->guestAccountService->process($existingOrder);
+            }
+
             return $this->loadOrderDetails($existingOrder);
         }
 
@@ -71,6 +81,9 @@ class CheckoutService
                 [
                     'order_number' => $this->generateOrderNumber(),
                     'user_id' => $user?->getKey(),
+                    'guest_account_status' => $user === null
+                        ? Order::GUEST_ACCOUNT_PENDING
+                        : null,
                     'customer_email' => $customerEmail,
                     'subtotal' => $durationOption->price,
                     'total' => $durationOption->price,
@@ -95,6 +108,10 @@ class CheckoutService
             ]);
 
             $this->paymentService->pay($order);
+
+            if ($user === null) {
+                $order = $this->guestAccountService->process($order);
+            }
 
             return $this->loadOrderDetails($order->refresh());
         });
