@@ -25,7 +25,7 @@ class AccountTest extends TestCase
             ->assertOk()
             ->assertSee($user->email)
             ->assertSee($user->created_at->format('d.m.Y'))
-            ->assertSee('Купленные товары появятся здесь после оформления заказа')
+            ->assertSee('У вас пока нет купленных товаров.')
             ->assertSee('action="'.route('logout').'"', false);
     }
 
