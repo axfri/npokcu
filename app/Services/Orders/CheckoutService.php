@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductDurationOption;
 use App\Models\User;
 use App\Services\Accounts\GuestAccountService;
+use App\Services\Deliveries\ProxyDeliveryService;
 use App\Services\Payments\TestPaymentService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,6 +20,7 @@ class CheckoutService
     public function __construct(
         private readonly TestPaymentService $paymentService,
         private readonly GuestAccountService $guestAccountService,
+        private readonly ProxyDeliveryService $proxyDeliveryService,
     ) {}
 
     public function checkout(
@@ -40,10 +42,10 @@ class CheckoutService
                 $existingOrder = $this->guestAccountService->process($existingOrder);
             }
 
-            return $this->loadOrderDetails($existingOrder);
+            return $this->finishPaidOrder($existingOrder);
         }
 
-        return DB::transaction(function () use (
+        $order = DB::transaction(function () use (
             $selectedProduct,
             $durationOptionId,
             $customerEmail,
@@ -115,6 +117,8 @@ class CheckoutService
 
             return $this->loadOrderDetails($order->refresh());
         });
+
+        return $this->finishPaidOrder($order);
     }
 
     private function generateOrderNumber(): string
@@ -132,6 +136,15 @@ class CheckoutService
 
     private function loadOrderDetails(Order $order): Order
     {
-        return $order->loadMissing(['items', 'paymentTransactions']);
+        return $order->loadMissing(['items.proxyDelivery', 'paymentTransactions']);
+    }
+
+    private function finishPaidOrder(Order $order): Order
+    {
+        if ($order->payment_status === PaymentTransaction::STATUS_PAID) {
+            $order = $this->proxyDeliveryService->deliver($order);
+        }
+
+        return $this->loadOrderDetails($order);
     }
 }

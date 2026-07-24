@@ -76,6 +76,11 @@ class Order extends Model
         return $this->hasMany(PaymentTransaction::class);
     }
 
+    public function proxyDeliveries(): HasMany
+    {
+        return $this->hasMany(ProxyDelivery::class);
+    }
+
     public function getRouteKeyName(): string
     {
         return 'order_number';

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Mail\AutoCreatedAccountMail;
 use App\Mail\ExistingAccountOrderMail;
+use App\Mail\ProxyDeliveryMail;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
@@ -140,7 +141,9 @@ class GuestAccountTest extends TestCase
         $this->assertNull($order->guest_account_status);
         $this->assertSame($passwordHash, $user->fresh()->password);
         $this->assertDatabaseCount('users', 1);
-        Mail::assertNothingQueued();
+        Mail::assertQueued(ProxyDeliveryMail::class, 1);
+        Mail::assertNotQueued(AutoCreatedAccountMail::class);
+        Mail::assertNotQueued(ExistingAccountOrderMail::class);
     }
 
     public function test_repeated_processing_does_not_replace_password_or_queue_second_mail(): void

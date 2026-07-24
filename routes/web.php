@@ -13,6 +13,7 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderSuccessController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProxyDeliveryDownloadController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'pages.home')->name('home');
@@ -70,6 +71,10 @@ Route::middleware(['auth', 'active', 'password.changed', 'auth.session'])->group
         ->name('account.password.update');
 
     Route::get('/account', AccountController::class)->name('account');
+    Route::get(
+        '/account/purchases/{proxyDelivery}/download',
+        ProxyDeliveryDownloadController::class,
+    )->name('account.purchases.download');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
     Route::get('/verify-email', EmailVerificationPromptController::class)

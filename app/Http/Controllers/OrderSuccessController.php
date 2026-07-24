@@ -19,10 +19,14 @@ class OrderSuccessController extends Controller
         abort_unless($isOwner || $hasGuestSignature, 404);
 
         $order->load([
-            'items' => fn ($query) => $query->orderBy('id'),
+            'items' => fn ($query) => $query->with('proxyDelivery')->orderBy('id'),
             'paymentTransactions' => fn ($query) => $query->latest('id'),
         ]);
+        $order->items->each(function ($item) use ($order): void {
+            $item->proxyDelivery?->setRelation('order', $order);
+            $item->proxyDelivery?->setRelation('orderItem', $item);
+        });
 
-        return view('orders.success', compact('order'));
+        return view('orders.success', compact('order', 'isOwner'));
     }
 }

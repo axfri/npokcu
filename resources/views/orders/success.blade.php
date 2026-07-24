@@ -6,6 +6,7 @@
 @php
     $item = $order->items->first();
     $payment = $order->paymentTransactions->first();
+    $delivery = $item?->proxyDelivery;
 @endphp
 
 @section('content')
@@ -48,24 +49,47 @@
                                 </span>
                             </dd>
                         </div>
+                        <div>
+                            <dt>Статус файла</dt>
+                            <dd>
+                                @if ($delivery?->isDownloadable())
+                                    <span class="status-badge status-badge--success">Файл подготовлен</span>
+                                @elseif ($delivery?->status === \App\Models\ProxyDelivery::STATUS_FAILED)
+                                    <span class="status-badge status-badge--danger">Ошибка выдачи</span>
+                                @else
+                                    <span class="status-badge status-badge--warning">Обрабатывается</span>
+                                @endif
+                            </dd>
+                        </div>
                     </dl>
                 @endif
 
                 <div class="order-success-notice">
-                    <strong>Аккаунт и заказ</strong>
-                    @if ($order->guest_account_status === \App\Models\Order::GUEST_ACCOUNT_CREATED)
-                        <p>Аккаунт создан автоматически. Данные для входа отправлены на указанную почту.</p>
-                    @elseif ($order->guest_account_status === \App\Models\Order::GUEST_ACCOUNT_EXISTING)
-                        <p>Заказ закреплён за аккаунтом с указанной почтой.</p>
+                    <strong>Файл и аккаунт</strong>
+                    @if (! $isOwner)
+                        <p>Файл отправлен на вашу почту. Для скачивания на сайте войдите в созданный аккаунт.</p>
+                        @if ($order->guest_account_status === \App\Models\Order::GUEST_ACCOUNT_CREATED)
+                            <p>Аккаунт создан автоматически. Данные для входа отправлены отдельным письмом.</p>
+                        @else
+                            <p>Заказ закреплён за аккаунтом с указанной почтой.</p>
+                        @endif
                     @else
-                        <p>Заказ закреплён за вашим аккаунтом.</p>
+                        <p>Заказ закреплён за вашим аккаунтом. Подготовленный файл доступен здесь и в разделе покупок.</p>
                     @endif
-                    <p>Создание и выдача файлов будут добавлены на отдельном этапе.</p>
                 </div>
 
                 <div class="order-success-actions">
-                    <a class="button button-primary" href="{{ route('catalog') }}">Вернуться в каталог</a>
-                    <a class="button button-secondary" href="{{ route('home') }}">На главную</a>
+                    @if ($delivery)
+                        @can('download', $delivery)
+                            <a class="button button-primary" href="{{ route('account.purchases.download', $delivery) }}">
+                                Скачать файл
+                            </a>
+                        @endcan
+                    @endif
+                    <a class="button button-secondary" href="{{ route('account') }}">
+                        {{ $isOwner ? 'Личный кабинет' : 'Войти в аккаунт' }}
+                    </a>
+                    <a class="button button-ghost" href="{{ route('catalog') }}">Вернуться в каталог</a>
                 </div>
             </article>
         </div>

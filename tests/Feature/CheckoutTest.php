@@ -131,7 +131,7 @@ class CheckoutTest extends TestCase
         $this->assertSame(60, $item->duration_days);
         $this->assertNotSame(999, $order->user_id);
         $this->assertSame('guest@example.test', $order->user->email);
-        $this->assertSame(Order::STATUS_PROCESSING, $order->order_status);
+        $this->assertSame(Order::STATUS_COMPLETED, $order->order_status);
     }
 
     public function test_duration_option_must_belong_to_selected_product_and_be_active(): void
@@ -232,7 +232,7 @@ class CheckoutTest extends TestCase
 
         $this->assertSame('test', $order->payment_method);
         $this->assertSame(PaymentTransaction::STATUS_PAID, $order->payment_status);
-        $this->assertSame(Order::STATUS_PROCESSING, $order->order_status);
+        $this->assertSame(Order::STATUS_COMPLETED, $order->order_status);
         $this->assertTrue($order->paid_at->equalTo($paidAt));
         $this->assertSame('test', $payment->provider);
         $this->assertSame(PaymentTransaction::STATUS_PAID, $payment->status);

@@ -18,6 +18,8 @@ return [
 
     'credentials_mailer' => env('MAIL_CREDENTIALS_MAILER', 'smtp'),
 
+    'delivery_mailer' => env('MAIL_DELIVERY_MAILER', 'smtp'),
+
     /*
     |--------------------------------------------------------------------------
     | Mailer Configurations
