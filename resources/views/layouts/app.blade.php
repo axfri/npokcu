@@ -39,6 +39,9 @@
                     <a class="button button-ghost button-small" href="{{ route('login') }}">Войти</a>
                     <a class="button button-primary button-small" href="{{ route('register') }}">Регистрация</a>
                 @else
+                    @if (auth()->user()->is_admin)
+                        <a class="button button-ghost button-small" href="{{ route('admin.dashboard') }}">Админ-панель</a>
+                    @endif
                     <a class="button button-ghost button-small" href="{{ auth()->user()->must_change_password ? route('account.password.edit') : route('account') }}">
                         {{ auth()->user()->must_change_password ? 'Сменить пароль' : 'Личный кабинет' }}
                     </a>
@@ -73,6 +76,9 @@
                     <div class="mobile-account">
                         <span>Вы вошли как</span>
                         <bdi class="header-email" title="{{ auth()->user()->email }}">{{ auth()->user()->email }}</bdi>
+                        @if (auth()->user()->is_admin)
+                            <a class="button button-secondary" href="{{ route('admin.dashboard') }}">Админ-панель</a>
+                        @endif
                         <a class="button button-primary" href="{{ auth()->user()->must_change_password ? route('account.password.edit') : route('account') }}">
                             {{ auth()->user()->must_change_password ? 'Сменить пароль' : 'Личный кабинет' }}
                         </a>

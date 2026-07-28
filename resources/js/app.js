@@ -35,7 +35,9 @@ if (menuToggle && mobileMenu && siteHeader) {
         }
     });
 
-    window.matchMedia('(min-width: 981px)').addEventListener('change', (event) => {
+    const menuBreakpoint = siteHeader.dataset.menuBreakpoint ?? '981px';
+
+    window.matchMedia(`(min-width: ${menuBreakpoint})`).addEventListener('change', (event) => {
         if (event.matches) {
             setMenuState(false);
         }

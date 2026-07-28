@@ -31,6 +31,7 @@ class UserFactory extends Factory
             'is_auto_created' => false,
             'must_change_password' => false,
             'status' => User::STATUS_ACTIVE,
+            'is_admin' => false,
             'remember_token' => Str::random(10),
         ];
     }
@@ -42,6 +43,13 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => true,
         ]);
     }
 }

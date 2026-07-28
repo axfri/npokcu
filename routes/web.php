@@ -1,6 +1,12 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ProductDurationOptionController as AdminProductDurationOptionController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -21,6 +27,40 @@ Route::view('/instructions', 'pages.instructions')->name('instructions');
 Route::view('/contacts', 'pages.contacts')->name('contacts');
 Route::view('/terms', 'pages.terms')->name('terms');
 Route::view('/privacy', 'pages.privacy')->name('privacy');
+
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'admin'])
+    ->group(function (): void {
+        Route::get('/', AdminDashboardController::class)->name('dashboard');
+
+        Route::resource('categories', AdminCategoryController::class)->except('show');
+        Route::patch('/categories/{category}/toggle', [AdminCategoryController::class, 'toggle'])
+            ->name('categories.toggle');
+
+        Route::resource('products', AdminProductController::class)
+            ->except(['show', 'destroy']);
+        Route::patch('/products/{product}/toggle', [AdminProductController::class, 'toggle'])
+            ->name('products.toggle');
+        Route::post(
+            '/products/{product}/duration-options',
+            [AdminProductDurationOptionController::class, 'store'],
+        )->name('products.duration-options.store');
+        Route::put(
+            '/products/{product}/duration-options/{duration_option}',
+            [AdminProductDurationOptionController::class, 'update'],
+        )->name('products.duration-options.update');
+        Route::delete(
+            '/products/{product}/duration-options/{duration_option}',
+            [AdminProductDurationOptionController::class, 'destroy'],
+        )->name('products.duration-options.destroy');
+
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+    });
 
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog');
 Route::get('/catalog/{category:slug}', [CatalogController::class, 'show'])->name('catalog.category');
