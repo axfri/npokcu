@@ -1,82 +1,84 @@
 # npokcu
 
-Laravel backend for a digital product catalog, checkout workflow and private delivery of purchased files.
+Laravel backend для цифрового магазина: каталог товаров, оформление заказов и безопасная выдача приобретённых файлов.
 
-The project is a deliberately isolated foundation for a proxy-product store. It models the core business flow without copying production catalog data or connecting to a real payment provider.
+Проект представляет собой изолированную основу магазина прокси-продуктов. В репозитории реализован основной бизнес-сценарий без подключения к реальному платёжному провайдеру и без копирования производственных данных каталога.
 
-## What it demonstrates
+## Что реализовано
 
-- product catalog with categories and duration-based prices;
-- authenticated accounts and guest checkout;
-- email verification, password reset and password change flows;
-- checkout with order and order-item snapshots;
-- idempotent test payments;
-- admin panel for categories, products, orders and users;
-- policies and middleware for access control;
-- private file delivery with download limits and audit logs;
-- queued account and delivery emails;
-- database migrations, factories, seeders and feature tests;
-- Russian validation and interface text in UTF-8.
+- каталог товаров с категориями и вариантами срока действия;
+- регистрация, авторизация и гостевое оформление заказа;
+- подтверждение электронной почты;
+- восстановление и смена пароля;
+- оформление заказа с сохранением снимка товара и цены;
+- идемпотентная тестовая оплата;
+- административная панель для категорий, товаров, заказов и пользователей;
+- middleware и policies для разграничения доступа;
+- приватная выдача файлов;
+- журналирование скачиваний;
+- постановка писем в очередь;
+- миграции, фабрики, seeders и feature-тесты;
+- русские тексты интерфейса и валидации в UTF-8.
 
-The current checkout uses a test payment service. No real payment provider is connected.
+В текущей версии используется только тестовый платёжный сервис. Реальный платёжный провайдер ещё не подключён.
 
-## Stack
+## Стек
 
-- PHP 8.3+
-- Laravel 13
-- Blade
-- Laravel Breeze authentication
-- MySQL/MariaDB for local application development
-- SQLite in the test suite
-- Vite and Tailwind CSS
-- PHPUnit
-- database-backed queues, cache and sessions
+- PHP 8.3+;
+- Laravel 13;
+- Blade;
+- Laravel Breeze;
+- MySQL/MariaDB для локального запуска;
+- SQLite для тестов;
+- Vite и Tailwind CSS;
+- PHPUnit;
+- database-backed queues, cache и sessions.
 
-## Architecture
+## Архитектура
 
-The application follows Laravel's standard structure with business logic separated into focused services:
+Проект использует стандартную структуру Laravel. Прикладная логика разделена по сервисам:
 
-- `app/Http/Controllers` — web controllers;
-- `app/Http/Requests` — input validation;
-- `app/Models` — Eloquent models and relationships;
-- `app/Policies` — authorization rules;
-- `app/Services/Orders` — checkout and order workflow;
-- `app/Services/Payments` — payment abstraction and test payment;
-- `app/Services/Accounts` — guest-account creation and linking;
-- `app/Services/Deliveries` — private file generation and delivery;
-- `app/Mail` — account and delivery notifications;
-- `database/migrations` — schema history;
-- `database/factories` and `database/seeders` — development data;
-- `tests/Feature` and `tests/Unit` — automated checks.
+- `app/Http/Controllers` — HTTP-контроллеры;
+- `app/Http/Requests` — валидация входных данных;
+- `app/Models` — Eloquent-модели и связи;
+- `app/Policies` — правила авторизации;
+- `app/Services/Orders` — оформление и обработка заказов;
+- `app/Services/Payments` — платёжная абстракция и тестовая оплата;
+- `app/Services/Accounts` — создание и привязка гостевых аккаунтов;
+- `app/Services/Deliveries` — создание и выдача приватных файлов;
+- `app/Mail` — письма пользователям;
+- `database/migrations` — история структуры базы данных;
+- `database/factories` и `database/seeders` — тестовые данные;
+- `tests/Feature` и `tests/Unit` — автоматические тесты.
 
-Main domain entities:
+Основные сущности:
 
-`User`, `Category`, `Product`, `ProductDurationOption`, `Order`, `OrderItem`, `PaymentTransaction`, `ProxyDelivery` and `DownloadLog`.
+`User`, `Category`, `Product`, `ProductDurationOption`, `Order`, `OrderItem`, `PaymentTransaction`, `ProxyDelivery` и `DownloadLog`.
 
-## Business flow
+## Основной сценарий
 
-1. A visitor opens the catalog and selects a product duration.
-2. The checkout request validates the selected product and duration again inside a database transaction.
-3. The order stores an immutable snapshot of the purchased item and price.
-4. The test payment service creates an idempotent paid transaction.
-5. A guest order is linked to an existing account or a new account is created.
-6. A private delivery file is created and an email is queued.
-7. Authenticated downloads are authorized through a policy and recorded in `download_logs`.
+1. Пользователь открывает каталог и выбирает товар и срок.
+2. Данные повторно проверяются внутри транзакции базы данных.
+3. Заказ сохраняет неизменяемый снимок товара и цены.
+4. Тестовый платёжный сервис создаёт идемпотентную платёжную операцию.
+5. Гостевой заказ привязывается к существующему пользователю или создаётся новый аккаунт.
+6. Создаётся приватный файл, а письмо ставится в очередь.
+7. Скачивание проверяется через Policy и записывается в `download_logs`.
 
-The checkout uses a request token hash to make repeated POST requests safe. Product and duration rows are locked during the transaction to prevent purchasing inactive or changed options.
+Для защиты от повторной отправки формы используется хеш токена checkout. Товары и варианты срока блокируются во время транзакции, чтобы нельзя было купить отключённый или изменённый вариант.
 
-## Requirements
+## Требования
 
-- PHP 8.3 or newer;
+- PHP 8.3 или новее;
 - Composer;
-- Node.js and npm;
-- MySQL 8/MariaDB for the default local setup;
-- PDO SQLite for the test suite;
-- a mail transport if you want to test real email delivery.
+- Node.js и npm;
+- MySQL 8 или MariaDB;
+- PDO SQLite для запуска тестов;
+- почтовый транспорт для проверки реальной отправки писем.
 
-## Local setup
+## Локальный запуск
 
-Clone the repository and install the dependencies:
+Клонировать проект и установить зависимости:
 
 ```bash
 git clone https://github.com/axfri/npokcu.git
@@ -86,21 +88,21 @@ composer install
 npm install
 ```
 
-Create the environment file:
+Создать файл окружения:
 
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-On Windows PowerShell:
+В Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
 php artisan key:generate
 ```
 
-Configure the database values in `.env`, then run migrations and demo seed data:
+Настроить подключение к базе данных в `.env`, затем выполнить миграции и заполнить демонстрационные данные:
 
 ```bash
 php artisan migrate
@@ -108,91 +110,89 @@ php artisan db:seed
 npm run build
 ```
 
-The seeder creates clearly marked demo categories, products, one demo user and a completed test order. It does not contain production catalog data.
+Seeder создаёт демонстрационные категории, товары, пользователя и тестовый заказ. Производственные данные каталога в репозитории отсутствуют.
 
-Start the application:
+Запустить приложение:
 
 ```bash
 php artisan serve
 ```
 
-For frontend development with live Vite reload:
+Для разработки с автоматической пересборкой frontend:
 
 ```bash
 composer run dev
 ```
 
-The development script starts the Laravel server, queue listener, log viewer and Vite together.
+Команда запускает Laravel, обработчик очереди, просмотр логов и Vite.
 
-## Testing
+## Тестирование
 
-Run the complete test suite:
+Запустить все тесты:
 
 ```bash
 composer run test
 ```
 
-or:
+или:
 
 ```bash
 php artisan test
 ```
 
-Tests use an in-memory SQLite database and cover:
+Тесты используют SQLite в памяти и проверяют:
 
-- registration and authentication;
-- email verification;
-- password reset and password change;
-- catalog and product visibility;
-- checkout and order creation;
-- guest account processing;
-- admin access;
-- private delivery authorization;
-- download logging;
-- database structure;
-- money formatting and mail behavior.
+- регистрацию и авторизацию;
+- подтверждение электронной почты;
+- восстановление и смену пароля;
+- отображение каталога;
+- оформление заказов;
+- гостевые аккаунты;
+- доступ к административной панели;
+- приватную выдачу файлов;
+- журналирование скачиваний;
+- структуру базы данных;
+- форматирование денег и отправку писем.
 
-## Environment
+## Конфигурация
 
-Important variables are documented in [`.env.example`](.env.example).
+Основные переменные находятся в [`.env.example`](.env.example).
 
-For a local demo, review at least:
+Перед запуском проверьте:
 
 - `APP_ENV`;
 - `APP_DEBUG`;
-- database connection values;
+- параметры базы данных;
 - `QUEUE_CONNECTION`;
-- `MAIL_*` values;
+- настройки `MAIL_*`;
 - `PROXY_DELIVERY_DISK`;
 - `PAYMENT_TEST_MODE`.
 
-Never commit `.env`, application keys, database credentials, mail credentials or payment secrets.
+Файл `.env`, ключ приложения, пароли базы данных, почтовые credentials и секреты платёжных систем нельзя добавлять в Git.
 
-## Security notes
+## Безопасность
 
-- Admin routes require authentication and the admin middleware.
-- Checkout input is validated through Form Requests.
-- Sensitive downloads are stored on a private filesystem disk.
-- Download access is checked through a policy and recorded for auditing.
-- Passwords are hashed by Laravel.
-- Login, password reset and verification endpoints use throttling.
-- Payment payloads intentionally do not store provider secrets.
-- Real payment callbacks and provider-specific credentials are not implemented yet.
+- административные маршруты защищены авторизацией и middleware;
+- входные данные проверяются через Form Requests;
+- файлы хранятся на приватном диске;
+- скачивание проверяется Policy и журналируется;
+- пароли хешируются средствами Laravel;
+- для авторизации, восстановления пароля и подтверждения почты используется throttling;
+- секреты платёжных систем не сохраняются в payload;
+- реальные payment callbacks пока не реализованы.
 
-Before production use, the project still needs a real payment adapter, callback signature verification, a production mail transport, queue worker monitoring, backups and a deployment security review.
+Перед production-запуском потребуются реальный платёжный адаптер, проверка подписей callback-запросов, production mail transport, мониторинг очередей, резервное копирование и security review.
 
-## Current limitations
+## Текущие ограничения
 
-- no Docker or docker-compose configuration yet;
-- no public REST API;
-- no real payment provider;
-- no Redis-specific integration;
-- no production deployment workflow;
-- the catalog contains demo data only.
+- Docker и docker-compose пока отсутствуют;
+- публичный REST API пока отсутствует;
+- реальный платёжный провайдер не подключён;
+- отдельная Redis-интеграция не настроена;
+- production CI/CD workflow пока отсутствует;
+- каталог содержит только демонстрационные данные.
 
-These limitations are intentional for the current foundation stage.
+## Лицензия
 
-## License
-
-This project is provided for portfolio and development purposes.
+Проект предназначен для портфолио и разработки.
 
